@@ -123,7 +123,7 @@
   <div id="tab-auth" class="seccion visible">
 
     <div class="card">
-      <h2>POST /api/v1/auth/login</h2>
+      <h2>Login/h2>
       <div class="fila">
         <label>Correo</label>
         <input id="login-correo" type="email" placeholder="cliente@email.com" />
@@ -137,7 +137,7 @@
     </div>
 
     <div class="card">
-      <h2>POST /api/v1/auth/logout</h2>
+      <h2>Logout</h2>
       <p class="nota">Usa el token guardado al hacer login.</p>
       <button class="btn" onclick="ejecutarLogout()">Ejecutar</button>
       <pre id="res-logout" class="resultado"></pre>
@@ -149,7 +149,7 @@
   <div id="tab-clientes" class="seccion">
 
     <div class="card">
-      <h2>POST /api/v1/clientes — Registrar cliente</h2>
+      <h2>Registrar cliente</h2>
       <div class="fila"><label>Número de cédula *</label><input id="cc-cedula" placeholder="1234567890" /></div>
       <div class="fila"><label>Primer nombre *</label><input id="cc-nombre1" placeholder="Juan" /></div>
       <div class="fila"><label>Segundo nombre</label><input id="cc-nombre2" placeholder="opcional" /></div>
@@ -163,14 +163,14 @@
     </div>
 
     <div class="card">
-      <h2>GET /api/v1/clientes/:id — Consultar cliente</h2>
+      <h2>Consultar cliente</h2>
       <div class="fila"><label>UUID del cliente *</label><input id="gc-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
       <button class="btn" onclick="ejecutarGetCliente()">Ejecutar</button>
       <pre id="res-get-cliente" class="resultado"></pre>
     </div>
 
     <div class="card">
-      <h2>PATCH /api/v1/clientes/:id — Actualizar cliente</h2>
+      <h2> Actualizar cliente</h2>
       <p class="nota">Solo llena los campos que quieras cambiar.</p>
       <div class="fila"><label>UUID del cliente *</label><input id="pc-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
       <div class="fila"><label>Primer nombre</label><input id="pc-nombre1" placeholder="opcional" /></div>
@@ -195,7 +195,7 @@
   <div id="tab-cuentas" class="seccion">
 
     <div class="card">
-      <h2>POST /api/v1/cuentas — Crear cuenta</h2>
+      <h2> Crear cuenta</h2>
       <div class="fila"><label>UUID del cliente *</label><input id="cta-cliente" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
       <div class="fila">
         <label>Tipo de cuenta *</label>
@@ -209,7 +209,7 @@
     </div>
 
     <div class="card">
-      <h2>GET /api/v1/cuentas/:id/saldo — Consultar saldo</h2>
+      <h2> Consultar saldo</h2>
       <div class="fila"><label>UUID de la cuenta *</label><input id="saldo-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
       <button class="btn" onclick="ejecutarSaldo()">Ejecutar</button>
       <pre id="res-saldo" class="resultado"></pre>
