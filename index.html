@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Banco Digital — Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+    header {
+      background: #1a1a2e;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    header h1 { font-size: 1.1rem; font-weight: 600; margin-right: auto; }
+    #token-badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #2d2d4e;
+      color: #aaa;
+    }
+    #token-badge.ok { background: #1e3a2f; color: #6fcf97; }
+
+    nav {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      padding: 0 2rem;
+    }
+    nav button {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 0.85rem 1.2rem;
+      font-size: 0.88rem;
+      cursor: pointer;
+      color: #666;
+      border-radius: 0;
+    }
+    nav button.activo { border-bottom-color: #4a6cf7; color: #1a1a2e; font-weight: 600; }
+    nav button:hover:not(.activo) { color: #1a1a2e; background: #f8f9fa; }
+
+    main { max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+
+    .seccion { display: none; flex-direction: column; gap: 1rem; }
+    .seccion.visible { display: flex; }
+
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 1.5rem;
+      border: 1px solid #e2e8f0;
+    }
+    .card h2 { font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem; color: #4a6cf7; font-family: monospace; }
+
+    .fila { margin-bottom: 0.85rem; }
+    label { display: block; font-size: 0.78rem; font-weight: 500; color: #666; margin-bottom: 0.25rem; }
+    input, select {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #cbd5e0;
+      border-radius: 7px;
+      font-size: 0.88rem;
+      color: #1a1a2e;
+      background: #fff;
+    }
+    input:focus, select:focus { outline: none; border-color: #4a6cf7; }
+
+    button.btn {
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      padding: 0.55rem 1.2rem;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    button.btn:hover { background: #2d2d4e; }
+
+    pre.resultado {
+      margin-top: 1rem;
+      background: #f8f9fa;
+      border: 1px solid #e2e8f0;
+      border-radius: 7px;
+      padding: 0.9rem;
+      font-size: 0.78rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+    pre.resultado.visible { display: block; }
+    pre.resultado.error { border-color: #f5c6cb; background: #fdf0f0; color: #c0392b; }
+    pre.resultado.ok    { border-color: #c3e6cb; background: #f0fff4; }
+
+    .nota { font-size: 0.78rem; color: #888; margin-bottom: 0.75rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Banco Digital</h1>
+  <span id="token-badge">Sin sesión</span>
+</header>
+
+<nav>
+  <button class="activo" onclick="mostrarTab('auth', this)"> Auth</button>
+  <button onclick="mostrarTab('clientes', this)"> Clientes</button>
+  <button onclick="mostrarTab('cuentas', this)"> Cuentas</button>
+</nav>
+
+<main>
+
+  <!-- AUTH -->
+  <div id="tab-auth" class="seccion visible">
+
+    <div class="card">
+      <h2>POST /api/v1/auth/login</h2>
+      <div class="fila">
+        <label>Correo</label>
+        <input id="login-correo" type="email" placeholder="cliente@email.com" />
+      </div>
+      <div class="fila">
+        <label>Clave</label>
+        <input id="login-clave" type="password" placeholder="contraseña" />
+      </div>
+      <button class="btn" onclick="ejecutarLogin()">Ejecutar</button>
+      <pre id="res-login" class="resultado"></pre>
+    </div>
+
+    <div class="card">
+      <h2>POST /api/v1/auth/logout</h2>
+      <p class="nota">Usa el token guardado al hacer login.</p>
+      <button class="btn" onclick="ejecutarLogout()">Ejecutar</button>
+      <pre id="res-logout" class="resultado"></pre>
+    </div>
+
+  </div>
+
+  <!-- CLIENTES -->
+  <div id="tab-clientes" class="seccion">
+
+    <div class="card">
+      <h2>POST /api/v1/clientes — Registrar cliente</h2>
+      <div class="fila"><label>Número de cédula *</label><input id="cc-cedula" placeholder="1234567890" /></div>
+      <div class="fila"><label>Primer nombre *</label><input id="cc-nombre1" placeholder="Juan" /></div>
+      <div class="fila"><label>Segundo nombre</label><input id="cc-nombre2" placeholder="opcional" /></div>
+      <div class="fila"><label>Primer apellido *</label><input id="cc-apellido1" placeholder="Pérez" /></div>
+      <div class="fila"><label>Segundo apellido</label><input id="cc-apellido2" placeholder="opcional" /></div>
+      <div class="fila"><label>Email *</label><input id="cc-email" type="email" placeholder="juan@email.com" /></div>
+      <div class="fila"><label>Teléfono</label><input id="cc-tel" placeholder="3001234567" /></div>
+      <div class="fila"><label>Fecha de nacimiento *</label><input id="cc-fecha" type="date" /></div>
+      <button class="btn" onclick="ejecutarCrearCliente()">Ejecutar</button>
+      <pre id="res-crear-cliente" class="resultado"></pre>
+    </div>
+
+    <div class="card">
+      <h2>GET /api/v1/clientes/:id — Consultar cliente</h2>
+      <div class="fila"><label>UUID del cliente *</label><input id="gc-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
+      <button class="btn" onclick="ejecutarGetCliente()">Ejecutar</button>
+      <pre id="res-get-cliente" class="resultado"></pre>
+    </div>
+
+    <div class="card">
+      <h2>PATCH /api/v1/clientes/:id — Actualizar cliente</h2>
+      <p class="nota">Solo llena los campos que quieras cambiar.</p>
+      <div class="fila"><label>UUID del cliente *</label><input id="pc-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
+      <div class="fila"><label>Primer nombre</label><input id="pc-nombre1" placeholder="opcional" /></div>
+      <div class="fila"><label>Primer apellido</label><input id="pc-apellido1" placeholder="opcional" /></div>
+      <div class="fila"><label>Email</label><input id="pc-email" type="email" placeholder="opcional" /></div>
+      <div class="fila"><label>Teléfono</label><input id="pc-tel" placeholder="opcional" /></div>
+      <div class="fila">
+        <label>Estado</label>
+        <select id="pc-activo">
+          <option value="">— sin cambio —</option>
+          <option value="true">Activo</option>
+          <option value="false">Inactivo</option>
+        </select>
+      </div>
+      <button class="btn" onclick="ejecutarPatchCliente()">Ejecutar</button>
+      <pre id="res-patch-cliente" class="resultado"></pre>
+    </div>
+
+  </div>
+
+  <!-- CUENTAS -->
+  <div id="tab-cuentas" class="seccion">
+
+    <div class="card">
+      <h2>POST /api/v1/cuentas — Crear cuenta</h2>
+      <div class="fila"><label>UUID del cliente *</label><input id="cta-cliente" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
+      <div class="fila">
+        <label>Tipo de cuenta *</label>
+        <select id="cta-tipo">
+          <option value="AHORRO">AHORRO</option>
+          <option value="CORRIENTE">CORRIENTE</option>
+        </select>
+      </div>
+      <button class="btn" onclick="ejecutarCrearCuenta()">Ejecutar</button>
+      <pre id="res-crear-cuenta" class="resultado"></pre>
+    </div>
+
+    <div class="card">
+      <h2>GET /api/v1/cuentas/:id/saldo — Consultar saldo</h2>
+      <div class="fila"><label>UUID de la cuenta *</label><input id="saldo-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" /></div>
+      <button class="btn" onclick="ejecutarSaldo()">Ejecutar</button>
+      <pre id="res-saldo" class="resultado"></pre>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  const BASE = 'http://localhost:8080'
+  let token = localStorage.getItem('token') || ''
+  actualizarBadge()
+
+  function actualizarBadge() {
+    const badge = document.getElementById('token-badge')
+    if (token) {
+      badge.textContent = '✓ Con sesión'
+      badge.className = 'ok'
+    } else {
+      badge.textContent = 'Sin sesión'
+      badge.className = ''
+    }
+  }
+
+  function mostrarTab(nombre, boton) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'))
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('activo'))
+    document.getElementById('tab-' + nombre).classList.add('visible')
+    boton.classList.add('activo')
+  }
+
+  function mostrarResultado(id, datos, esOk) {
+    const el = document.getElementById(id)
+    el.textContent = JSON.stringify(datos, null, 2)
+    el.className = 'resultado visible ' + (esOk ? 'ok' : 'error')
+  }
+
+  function headers(esLogin = false) {
+    const h = { 'Content-Type': 'application/json' }
+    if (!esLogin && token) h['Authorization'] = 'Bearer ' + token
+    return h
+  }
+
+  async function llamar(url, opciones) {
+    try {
+      const res = await fetch(url, opciones)
+      const texto = await res.text()
+      let json
+      try { json = JSON.parse(texto) } catch { json = { respuesta: texto } }
+      return { ok: res.ok, json }
+    } catch (e) {
+      return { ok: false, json: { error: 'No se pudo conectar: ' + e.message } }
+    }
+  }
+
+  async function ejecutarLogin() {
+    const correo = document.getElementById('login-correo').value
+    const clave  = document.getElementById('login-clave').value
+    const { ok, json } = await llamar(BASE + '/api/v1/auth/login', {
+      method: 'POST',
+      headers: headers(true),
+      body: JSON.stringify({ correo, clave }),
+    })
+   if (ok && (json.token || (json.data && json.data.token))) {
+      token = json.token || json.data.token
+      localStorage.setItem('token', token)
+      actualizarBadge()
+    }
+    }
+    mostrarResultado('res-login', json, ok)
+  
+
+  async function ejecutarLogout() {
+    const { ok, json } = await llamar(BASE + '/api/v1/auth/logout', {
+      method: 'POST',
+      headers: headers(),
+    })
+    if (ok) {
+      token = ''
+      localStorage.removeItem('token')
+      actualizarBadge()
+    }
+    mostrarResultado('res-logout', json || { mensaje: 'Sesión cerrada' }, ok)
+  }
+
+  async function ejecutarCrearCliente() {
+    const datos = {
+      numeroCedula:    document.getElementById('cc-cedula').value,
+      primerNombre:    document.getElementById('cc-nombre1').value,
+      primerApellido:  document.getElementById('cc-apellido1').value,
+      email:           document.getElementById('cc-email').value,
+      fechaNacimiento: document.getElementById('cc-fecha').value,
+    }
+    const opcionales = [
+      ['cc-nombre2',   'segundoNombre'],
+      ['cc-apellido2', 'segundoApellido'],
+      ['cc-tel',       'telefono'],
+    ]
+    opcionales.forEach(([id, campo]) => {
+      const val = document.getElementById(id).value
+      if (val) datos[campo] = val
+    })
+    const { ok, json } = await llamar(BASE + '/api/v1/clientes', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify(datos),
+    })
+    mostrarResultado('res-crear-cliente', json, ok)
+  }
+
+  async function ejecutarGetCliente() {
+    const id = document.getElementById('gc-id').value.trim()
+    const { ok, json } = await llamar(BASE + '/api/v1/clientes/' + id, {
+      method: 'GET',
+      headers: headers(),
+    })
+    mostrarResultado('res-get-cliente', json, ok)
+  }
+
+  async function ejecutarPatchCliente() {
+    const id = document.getElementById('pc-id').value.trim()
+    const datos = {}
+    const campos = [
+      ['pc-nombre1',  'primerNombre'],
+      ['pc-apellido1','primerApellido'],
+      ['pc-email',    'email'],
+      ['pc-tel',      'telefono'],
+    ]
+    campos.forEach(([elId, campo]) => {
+      const val = document.getElementById(elId).value
+      if (val) datos[campo] = val
+    })
+    const activo = document.getElementById('pc-activo').value
+    if (activo !== '') datos.activo = activo === 'true'
+    const { ok, json } = await llamar(BASE + '/api/v1/clientes/' + id, {
+      method: 'PATCH',
+      headers: headers(),
+      body: JSON.stringify(datos),
+    })
+    mostrarResultado('res-patch-cliente', json, ok)
+  }
+
+  async function ejecutarCrearCuenta() {
+    const clienteId  = document.getElementById('cta-cliente').value.trim()
+    const tipoCuenta = document.getElementById('cta-tipo').value
+    const { ok, json } = await llamar(BASE + '/api/v1/cuentas', {
+      method: 'POST',
+      headers: headers(),
+      body: JSON.stringify({ clienteId, tipoCuenta }),
+    })
+    mostrarResultado('res-crear-cuenta', json, ok)
+  }
+
+  async function ejecutarSaldo() {
+    const id = document.getElementById('saldo-id').value.trim()
+    const { ok, json } = await llamar(BASE + '/api/v1/cuentas/' + id + '/saldo', {
+      method: 'GET',
+      headers: headers(),
+    })
+    mostrarResultado('res-saldo', json, ok)
+  }
+</script>
+
+</body>
+</html>
