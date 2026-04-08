@@ -220,7 +220,7 @@
 </main>
 
 <script>
-  const BASE = 'http://localhost:8080'
+  const BASE = 'https://banco-digital-api-7rwt.onrender.com'
   let token = localStorage.getItem('token') || ''
   actualizarBadge()
 
@@ -279,8 +279,9 @@
       localStorage.setItem('token', token)
       actualizarBadge()
     }
-    }
+    
     mostrarResultado('res-login', json, ok)
+  }
   
 
   async function ejecutarLogout() {
